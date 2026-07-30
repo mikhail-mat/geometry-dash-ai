@@ -1,0 +1,28 @@
+# venv
+.venv/
+venv/
+env/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# env vars / secrets
+.env
+*.key
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# data & models (adjust to taste)
+data/
+*.csv
+*.pkl
+*.pth
+*.ckpt
