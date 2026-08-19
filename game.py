@@ -1,20 +1,35 @@
 import pygame
-from states.start_menu import StartMenu
+import sqlite3
+from states.menu import StartMenu, PlayerMenu
 from states.gameplay import Gameplay
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from states.choose_player import ChoosePlayer
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, DB_PATH
 
-class Game():
+class Game:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption('GeometryDash')
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
 
-        self.states = ('start_menu', 'choose_player', 'gameplay', 'game_over', 'quit')
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS players(
+                    NAME TEXT PRIMARY KEY,
+                    BEST_SCORE INTEGER
+                )
+            ''')
+            conn.close()
+
+        self.states = ('start_menu', 'player_menu',
+                       'choose_player', 'create_player'
+                       'gameplay', 'game_over', 'quit')
         self.current_state = 'start_menu'
 
         self.start_menu = StartMenu(self.screen)
         self.gameplay = Gameplay(self.screen)
+        self.player_menu = PlayerMenu(self.screen)
+        self.choose_player = ChoosePlayer(self.screen)
 
     def run(self):
         game_open = True
@@ -32,6 +47,12 @@ class Game():
             elif self.current_state == 'gameplay':
                 self.gameplay.display()
                 new_state = self.gameplay.handle_events(events)
+            elif self.current_state == 'player_menu':
+                self.player_menu.display()
+                new_state = self.player_menu.handle_events(events)
+            elif self.current_state == 'choose_player':
+                self.choose_player.display()
+                new_state = self.choose_player.handle_events(events)
             else:
                 new_state = self.current_state
 

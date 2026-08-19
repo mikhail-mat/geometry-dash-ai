@@ -1,7 +1,7 @@
 import pygame
 from constants import GAME_BG
 
-class Gameplay():
+class Gameplay:
     def __init__(self, screen):
         self.screen = screen
         self.og_player_img = pygame.image.load('player.png').convert_alpha()
