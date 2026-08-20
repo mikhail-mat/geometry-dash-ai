@@ -1,9 +1,11 @@
 import pygame
-from constants import WHITE, MENU_BG, MENU_BTN_DARK, MENU_BTN_LIGHT, FONT, TITLE_FONT
+from constants import get_font, WHITE, MENU_BG, MENU_BTN_DARK, MENU_BTN_LIGHT
 
 
 class Text:
-    def __init__(self, content, coords, font=FONT, colour=WHITE):
+    def __init__(self, content, coords, font=None, colour=WHITE):
+        if font is None:
+            font = get_font()
         self.font = font
         self.colour = colour
         self.coords = coords
@@ -41,7 +43,7 @@ class Menu:
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.state_name = state_name
-        self.title_font = TITLE_FONT
+        self.title_font = get_font(size=45)
         self.titles = []
         self.buttons = []
 

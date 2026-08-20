@@ -1,18 +1,13 @@
-import sqlite3
 import pygame
 from .menu import Text
-from constants import DB_PATH, MENU_BG, MENU_BTN_DARK, MENU_BTN_LIGHT, BLACK, TITLE_FONT, RED
+from constants import get_font, MENU_BG, MENU_BTN_DARK, MENU_BTN_LIGHT, BLACK, RED
 
 
 class ChoosePlayer:
-    def __init__(self, screen):
+    def __init__(self, screen, conn):
         self.screen = screen
         self.screen_rect = screen.get_rect()
-        self.conn = sqlite3.connect(DB_PATH)
-
-        self.input_field_label = Text('Input the player name:',
-                               coords=(self.screen_rect.centerx, 
-                                       self.screen_rect.centery - 35))
+        self.conn = conn
         
         self.input_rect = pygame.Rect(0, 0, 300, 50)
         self.input_rect.center = (self.screen_rect.centerx, 
@@ -32,15 +27,17 @@ class ChoosePlayer:
                                       font=self.err_message_font,
                                       colour=RED)
 
-        title_font = TITLE_FONT
+        self.title_font = get_font(size=45)
         self.texts = [
             Text('CHOOSE AN EXISTING', 
                  coords=(self.screen_rect.centerx, 80),
-                 font=title_font),
+                 font=self.title_font),
             Text('PLAYER PROFILE', 
                  coords=(self.screen_rect.centerx, 160),
-                 font=title_font),
-            self.input_field_label,
+                 font=self.title_font),
+            Text('Input the player name:',
+                 coords=(self.screen_rect.centerx, 
+                         self.screen_rect.centery - 35)),
             self.user_input_text,
             self.input_err_message
         ]
@@ -65,7 +62,7 @@ class ChoosePlayer:
 
             if event.type == pygame.KEYDOWN and self.input_active:
                 if event.key == pygame.K_RETURN:
-                    self.process_user_input()
+                    return self.process_user_input()
                 elif event.key == pygame.K_BACKSPACE:
                     self.user_input_string = self.user_input_string[:-1]
                     self.user_input_text.set_content(self.user_input_string)
@@ -93,6 +90,3 @@ class ChoosePlayer:
                 return 'gameplay'
 
         return 'choose_player'
-
-    def close(self):
-        self.conn.close()

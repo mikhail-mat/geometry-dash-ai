@@ -1,4 +1,4 @@
-from pygame.font import SysFont
+import pygame
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
@@ -7,8 +7,13 @@ DB_PATH = BASE_DIR / 'players.db'
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-TITLE_FONT = SysFont('Arial', 45, bold=True)
-FONT = SysFont('Arial', 30, bold=True)
+_font_cache = {}
+
+def get_font(size=30, name='Arial', bold=True):
+    key = (name, size, bold)
+    if key not in _font_cache:
+        _font_cache[key] = pygame.font.SysFont(name, size, bold=bold)
+    return _font_cache[key]
 
 # colours
 MENU_BG = (24, 24, 24)

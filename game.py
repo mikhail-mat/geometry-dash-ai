@@ -12,60 +12,61 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
 
-        with sqlite3.connect(DB_PATH) as conn:
-            conn.execute('''
-                CREATE TABLE IF NOT EXISTS players(
-                    NAME TEXT PRIMARY KEY,
-                    BEST_SCORE INTEGER
-                )
-            ''')
-            conn.close()
-
-        self.states = ('start_menu', 'player_menu',
-                       'choose_player', 'create_player'
-                       'gameplay', 'game_over', 'quit')
-        self.current_state = 'start_menu'
+        self.conn = sqlite3.connect(DB_PATH)
+        self.conn.execute('''
+            CREATE TABLE IF NOT EXISTS players(
+                NAME TEXT PRIMARY KEY,
+                BEST_SCORE INTEGER
+            )
+        ''')
+        self.conn.commit()
 
         self.start_menu = StartMenu(self.screen)
-        self.gameplay = Gameplay(self.screen)
         self.player_menu = PlayerMenu(self.screen)
-        self.choose_player = ChoosePlayer(self.screen)
+        self.choose_player = ChoosePlayer(self.screen, self.conn)
+        self.gameplay = Gameplay(self.screen)
+
+        self.states = {'start_menu': self.start_menu, 
+                       'player_menu': self.player_menu,
+                       'choose_player': self.choose_player, 
+                       'create_player': None,
+                       'gameplay': self.gameplay, 
+                       'game_over': None, 
+                       'quit': None}
+        
+        self.current_state = 'start_menu'
 
     def run(self):
-        game_open = True
+        self.game_open = True
 
-        while game_open:
+        while self.game_open:
             events = pygame.event.get()
 
             for event in events:
                 if event.type == pygame.QUIT:
-                    game_open = False
-            
-            if self.current_state == 'start_menu':
-                self.start_menu.display()
-                new_state = self.start_menu.handle_events(events)
-            elif self.current_state == 'gameplay':
-                self.gameplay.display()
-                new_state = self.gameplay.handle_events(events)
-            elif self.current_state == 'player_menu':
-                self.player_menu.display()
-                new_state = self.player_menu.handle_events(events)
-            elif self.current_state == 'choose_player':
-                self.choose_player.display()
-                new_state = self.choose_player.handle_events(events)
-            else:
-                new_state = self.current_state
+                    self.shutdown()
+
+            new_state = self.current_state
+            for state_name, state in self.states.items():
+                if self.current_state == state_name:
+                    state.display()
+                    new_state = state.handle_events(events)
+                    break
 
             if new_state != self.current_state:
-                if new_state in self.states:
+                if new_state in self.states.keys():
                     self.current_state = new_state
                 else:
                     print(f'Invalid state: {new_state}')
 
             if self.current_state == 'quit':
-                game_open = False
+                self.shutdown()
 
             pygame.display.update()
             self.clock.tick(60)
 
         pygame.quit()
+
+    def shutdown(self):
+        self.game_open = False
+        self.conn.close()
