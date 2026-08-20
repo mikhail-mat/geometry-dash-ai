@@ -90,7 +90,7 @@ class PlayerMenu(Menu):
                  coords=(self.screen_rect.centerx, 80), 
                  font=self.title_font),
             Text('OR CREATE A NEW ONE',
-                 coords=(self.screen_rect.centerx, 160), 
+                 coords=(self.screen_rect.centerx, 140), 
                  font=self.title_font)
         ]
 
