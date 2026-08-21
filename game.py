@@ -3,7 +3,9 @@ import sqlite3
 from states.menu import StartMenu, PlayerMenu
 from states.gameplay import Gameplay
 from states.choose_player import ChoosePlayer
+from states.create_player import CreatePlayer
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, DB_PATH
+
 
 class Game:
     def __init__(self):
@@ -24,12 +26,13 @@ class Game:
         self.start_menu = StartMenu(self.screen)
         self.player_menu = PlayerMenu(self.screen)
         self.choose_player = ChoosePlayer(self.screen, self.conn)
+        self.create_player = CreatePlayer(self.screen, self.conn)
         self.gameplay = Gameplay(self.screen)
 
         self.states = {'start_menu': self.start_menu, 
                        'player_menu': self.player_menu,
                        'choose_player': self.choose_player, 
-                       'create_player': None,
+                       'create_player': self.create_player,
                        'gameplay': self.gameplay, 
                        'game_over': None, 
                        'quit': None}

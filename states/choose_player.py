@@ -70,26 +70,38 @@ class ChoosePlayerInput(InputField):
         elif not self.user_input_string.isalpha():
             self.error_message.set_content('Player name can only contain letters')
         else:
-            result = self.conn.execute('SELECT NAME, BEST_SCORE FROM players WHERE NAME = ?', 
+            result = self.conn.execute('SELECT * FROM players WHERE NAME = ?', 
                                        (self.user_input_string,)).fetchone()
             if result is None:
                 self.error_message.set_content('Player name not found')
             else:
                 self.reset()
                 return result
-
         return None
 
 
-class ChoosePlayer:
-    def __init__(self, screen, conn):
+class SelectPlayer:
+    def __init__(self, screen):
         self.screen = screen
         self.screen_rect = screen.get_rect()
+        self.title_font = get_font(size=45)
+        self.titles = []
+        self.input_field = InputField(coords=(0,0), label='Input:')
 
+    def display(self):
+        self.screen.fill(MENU_BG)
+        for title in self.titles:
+            title.show(self.screen)
+        self.input_field.show(self.screen)
+
+    def handle_events(self, events):
+        raise NotImplementedError
+
+class ChoosePlayer(SelectPlayer):
+    def __init__(self, screen, conn):
+        super().__init__(screen)
         self.input_field = ChoosePlayerInput(coords=(self.screen_rect.center),
                                              conn=conn)
-
-        self.title_font = get_font(size=45)
         self.titles = [
             Text('CHOOSE AN EXISTING', 
                  coords=(self.screen_rect.centerx, 80),
@@ -98,12 +110,6 @@ class ChoosePlayer:
                  coords=(self.screen_rect.centerx, 140),
                  font=self.title_font)
         ]
-
-    def display(self):
-        self.screen.fill(MENU_BG)
-        for title in self.titles:
-            title.show(self.screen)
-        self.input_field.show(self.screen)
 
     def handle_events(self, events):
         result = self.input_field.handle_events(events)
