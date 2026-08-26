@@ -7,6 +7,8 @@ DB_PATH = BASE_DIR / 'players.db'
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+PLAYER_SCREEN_X = 200
+
 _font_cache = {}
 
 def get_font(size=30, name='Arial', bold=True):

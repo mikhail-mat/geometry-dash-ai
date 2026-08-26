@@ -1,6 +1,5 @@
-import pygame
-from .choose_player import InputField, SelectPlayer
-from .menu import Text
+from .choose_player import SelectPlayer
+from ui import Text, InputField
 
 
 class CreatePlayerInput(InputField):

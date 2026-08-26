@@ -1,62 +1,5 @@
-import pygame
-from .menu import Text
-from constants import get_font, MENU_BG, MENU_BTN_DARK, MENU_BTN_LIGHT, BLACK, RED
-
-
-class InputField:
-    def __init__(self, coords, label, max_chars=12, width=300, height=50):
-        self.max_chars = max_chars
-        self.input_rect = pygame.Rect(0, 0, width, height)
-        self.input_rect.center = coords
-        self.input_active = False
-        self.input_label = Text(label,
-                                coords=(self.input_rect.centerx, 
-                                self.input_rect.centery - 50))
-        self.user_input_string = ''
-        self.user_input = Text(self.user_input_string, 
-                               coords=self.input_rect.center,
-                               colour=BLACK)
-        self.error_message = Text('', 
-                                  coords=(self.input_rect.centerx, 
-                                          self.input_rect.centery + 50), 
-                                  font=get_font(size=20),
-                                  colour=RED)
-
-    def show(self, screen):
-        input_colour = MENU_BTN_LIGHT if self.input_active else MENU_BTN_DARK
-        pygame.draw.rect(screen, input_colour, self.input_rect)
-        self.input_label.show(screen)
-        self.user_input.show(screen)
-        self.error_message.show(screen)
-
-    def handle_events(self, events):
-        mouse = pygame.mouse.get_pos()
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.input_rect.collidepoint(mouse):
-                    self.input_active = True
-                else:
-                    self.input_active = False
-
-            if event.type == pygame.KEYDOWN and self.input_active:
-                if event.key == pygame.K_RETURN:
-                    return self.process_user_input()
-                elif event.key == pygame.K_BACKSPACE:
-                    self.user_input_string = self.user_input_string[:-1]
-                    self.user_input.set_content(self.user_input_string)
-                elif event.unicode and len(self.user_input_string) < self.max_chars:
-                    self.user_input_string += event.unicode
-                    self.user_input.set_content(self.user_input_string)
-        return None
-
-    def process_user_input(self):
-        raise NotImplementedError
-
-    def reset(self):
-        self.user_input_string = ''
-        self.user_input.set_content('')
-        self.error_message.set_content('')
-        self.input_active = False
+from ui import Text, InputField
+from constants import get_font, MENU_BG
 
 
 class ChoosePlayerInput(InputField):
@@ -96,6 +39,7 @@ class SelectPlayer:
 
     def handle_events(self, events):
         raise NotImplementedError
+
 
 class ChoosePlayer(SelectPlayer):
     def __init__(self, screen, conn):

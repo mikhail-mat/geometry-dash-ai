@@ -1,41 +1,6 @@
 import pygame
+from ui import Text, Button
 from constants import get_font, WHITE, MENU_BG, MENU_BTN_DARK, MENU_BTN_LIGHT
-
-
-class Text:
-    def __init__(self, content, coords, font=None, colour=WHITE):
-        if font is None:
-            font = get_font()
-        self.font = font
-        self.colour = colour
-        self.coords = coords
-        self.set_content(content)
-
-    def set_content(self, content):
-        self.text_content = self.font.render(content, True, self.colour)
-        self.text_rect = self.text_content.get_rect(center=self.coords)
-
-    def show(self, screen):
-        screen.blit(self.text_content, self.text_rect)
-
-
-class Button:
-    def __init__(self, x, y, label, action, width=140, height=50, font=None):
-        self.button_rect = pygame.Rect(0, 0, width, height)
-        self.button_rect.center = (x, y)
-        self.text = Text(content=label,
-                         coords=self.button_rect.center,
-                         font=font)
-        self.action = action
-         
-    def show(self, screen):
-        mouse = pygame.mouse.get_pos()
-        colour = MENU_BTN_LIGHT if self.button_rect.collidepoint(mouse) else MENU_BTN_DARK
-        pygame.draw.rect(screen, colour, self.button_rect, border_radius=20)
-        self.text.show(screen)
-
-    def is_clicked(self, mouse):
-        return self.button_rect.collidepoint(mouse)
 
 
 class Menu:

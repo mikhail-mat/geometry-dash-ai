@@ -52,6 +52,8 @@ class Game:
             new_state = self.current_state
             for state_name, state in self.states.items():
                 if self.current_state == state_name:
+                    if self.current_state == 'gameplay':
+                        state.update()
                     state.display()
                     new_state = state.handle_events(events)
                     break
