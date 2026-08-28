@@ -9,6 +9,7 @@ class Player:
     def reset(self):
         self.x = 200
         self.y = GROUND_Y
+        self.prev_y = GROUND_Y
         self.vx = 0
         self.vy = 0
         self.in_motion = False
@@ -26,6 +27,8 @@ class Player:
             if self.in_air:
                 self.vy += GRAVITY
 
+            self.prev_y = self.y
+
             new_y = self.y + self.vy
             if new_y >= GROUND_Y:
                 self.y = GROUND_Y
@@ -38,6 +41,11 @@ class Player:
         if not self.in_air:
             self.vy = JUMP_VEL
             self.in_air = True
+
+    def land_on(self, surface_y):
+        self.y = surface_y
+        self.vy = 0.0
+        self.in_air = False
 
 
 if __name__ == '__main__':

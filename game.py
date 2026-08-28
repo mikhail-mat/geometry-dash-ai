@@ -11,7 +11,7 @@ class Game:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption('GeometryDash')
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED, vsync=1)
         self.clock = pygame.time.Clock()
 
         self.conn = sqlite3.connect(DB_PATH)
