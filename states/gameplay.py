@@ -2,19 +2,25 @@ import pygame
 from constants import GAME_BG, WHITE, SCREEN_WIDTH, BLACK
 from game_logic.player import Player
 from game_logic.logic import GameLogic
+from game_logic.rl import Environment, TrainingLoop
 from game_logic.constants import PLAYER_X, GROUND_Y
 
 class Gameplay:
     def __init__(self, screen):
         self.screen = screen
         self.screen_rect = screen.get_rect()
+        self.mode = 'human'
 
         self.game_logic = GameLogic()
+        self.env = Environment()
+        self.training_loop = TrainingLoop()
+        self.training_loop.load()
 
         self.og_player_img = pygame.image.load('player.png').convert_alpha()
         self.player_img = pygame.transform.scale(self.og_player_img, (80, 80))
 
-        self.action = 0
+        self.action = 1 if self.mode == 'agent' else 0
+        self.game_logic.step(action=self.action)
 
     def display(self):
         self.screen.fill(BLACK)
@@ -40,12 +46,30 @@ class Gameplay:
         self.screen.blit(self.player_img, (PLAYER_X, screen_y))
 
     def handle_events(self, events):
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    self.action = 1
+        if self.mode == 'human':
+            for event in events:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.action = 1
         return 'gameplay'
 
     def update(self):
-        self.game_logic.step(action=self.action)
-        self.action = 0
+        if self.mode == 'agent':
+            if self.game_logic.player.x > self.env.env_obstacles[-1][1] + 20:
+                self.game_logic.reset()
+                self.game_logic.step(action=1)
+            
+            self.env.player.x = self.game_logic.player.x
+            self.env.player.y = self.game_logic.player.y
+
+            if not self.game_logic.player.in_air:
+                state = self.env.convert_to_state()
+                self.action = max(range(2), 
+                            key=lambda a: self.training_loop.Q.get(state, [0, 0])[a])
+            else:
+                self.action = 0
+
+            self.game_logic.step(action=self.action)
+        elif self.mode == 'human':
+            self.game_logic.step(action=self.action)
+            self.action = 0
