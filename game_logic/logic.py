@@ -23,6 +23,11 @@ def load_level():
         Block(2600,GROUND_Y-50),
         Block(2700,GROUND_Y-50),
         Block(2700,GROUND_Y-100),
+        Spike(3000),
+        Block(3200),
+        Spike(3200,GROUND_Y-50),
+        Spike(4000),
+        Spike(4050),
     ]
 
 

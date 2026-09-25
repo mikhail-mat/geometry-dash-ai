@@ -55,24 +55,27 @@ class Environment(GameLogic):
         if closest_obs == (None, None, None):
             return 'terminal'
 
-        pad_vector = ((5, 3), 0, 0)
+        DIVS = (6, 36, 48)
+        CAPS = (30, 5, 3)
 
-        state[0] = min(30, int((closest_obs[0][0]-self.player.x-80) // 6)) # 1st closest left - player right
-        state[1] = max(0, min(5, (closest_obs[1][0]-closest_obs[0][1]) // 36)) \
-            if closest_obs[1] is not None else pad_vector[0][0] # 2nd closest left - 1st closest right
-        state[2] = max(0, min(3, (closest_obs[2][0]-closest_obs[1][1]) // 48)) \
-            if closest_obs[2] is not None else pad_vector[0][1] # 3rd closest left - 2nd closest right
-
-        for i in range(3, 6):
-            state[i] = closest_obs[i-3][3] if closest_obs[i-3] is not None else pad_vector[1] # obstacle type
-
-        for i in range(6, 9):
-            state[i] = self.level_of(closest_obs[i-6][2]) \
-                if closest_obs[i-6] is not None else pad_vector[2] # obstacle level
-
+        prev_right = self.player.x + 80
+        for i in range(3):
+            gap, typ, lvl = self.slot(closest_obs[i], prev_right, DIVS[i], CAPS[i])
+            state[i], state[i+3], state[i+6] = gap, typ, lvl
+            if closest_obs[i] is not None:
+                prev_right = closest_obs[i][1]
+        
         state[9] = self.level_of(self.player.y-50)
 
         return tuple(state)
+
+    def slot(self, obs, prev_right, div, cap, pad_type = 0):
+        if obs is None:
+            return cap, pad_type, 0
+        gap = max(0, (obs[0] - prev_right) // div)
+        if gap >= cap: # too far to matter -> treat as absent
+            return cap, pad_type, 0
+        return int(gap), obs[3], self.level_of(obs[2])
 
     def build_env_obstacles(self):
         spikes = []
@@ -174,7 +177,7 @@ class TrainingLoop:
 
         return self.env.player.x - start
     
-    def train(self, episodes=20000):
+    def train(self, episodes=10000):
         history = []
         for ep in range(episodes):
             history.append(self.run_for_one_episode())
@@ -225,23 +228,6 @@ class TrainingLoop:
 
 if __name__ == '__main__':
     training_loop = TrainingLoop()
+    # training_loop.load()
     training_loop.train()
     training_loop.save()
-
-    training_loop.trace()
-
-    print(training_loop.evaluate())
-
-    print(sum(1 for v in training_loop.Q.values() if v != [0.0, 0.0]), "of", len(training_loop.Q))
-
-    # env = Environment()
-    # env.reset()
-    # env.player.set_in_motion()
-    # env.player.x = 400
-    # s, r = env.step(0)
-    # for i in range(20):
-    #     print(f"x={env.player.x:6.0f} y={env.player.y:6.0f} state={s}")
-    #     s, r = env.step(random.randrange(2))
-    #     if s == 'terminal':
-    #         print("died at", env.player.x)
-    #         break

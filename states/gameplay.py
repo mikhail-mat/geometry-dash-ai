@@ -55,8 +55,9 @@ class Gameplay:
 
     def update(self):
         if self.mode == 'agent':
-            if self.game_logic.player.x > self.env.env_obstacles[-1][1] + 20:
+            if self.game_logic.player.x > self.env.env_obstacles[-1][1] + 80:
                 self.game_logic.reset()
+                self.env.reset()
                 self.game_logic.step(action=1)
             
             self.env.player.x = self.game_logic.player.x
