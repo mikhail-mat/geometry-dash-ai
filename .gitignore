@@ -24,5 +24,6 @@ Thumbs.db
 data/
 *.csv
 *.pkl
+!q_table.pkl
 *.pth
 *.ckpt

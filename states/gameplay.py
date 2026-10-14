@@ -9,7 +9,7 @@ class Gameplay:
     def __init__(self, screen):
         self.screen = screen
         self.screen_rect = screen.get_rect()
-        self.mode = 'human'
+        self.mode = 'agent'
 
         self.game_logic = GameLogic()
         self.env = Environment()
